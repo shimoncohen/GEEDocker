@@ -44,7 +44,7 @@ cd server
 
 bash run.sh
 
-** make sure the server is running before starting fusion
+** make sure the server is running before starting fusion\
 Start fusion:
 
 cd fusion

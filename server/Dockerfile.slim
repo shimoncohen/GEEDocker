@@ -1,0 +1,32 @@
+FROM geebuild:v1 AS base
+
+WORKDIR /
+
+COPY entrypoint.sh /entrypoint.sh
+
+WORKDIR /opt/myapp/earthenterprise/earth_enterprise/src/installer
+
+RUN apt-get update &&\
+	apt-get install --no-install-recommends python-pil\
+	python-tornado
+
+# Install earth server
+RUN echo 'C\ny' | bash install_server.sh
+
+RUN rm -frd /opt/myapp/earthenterprise
+
+#RUN rm -frd /opt
+RUN rm -frd /tmp
+#RUN rm -frd /var
+RUN rm -frd /usr/bin
+
+FROM ubuntu:16.04
+COPY --from=base / /
+#COPY --from=base /etc /etc
+#COPY --from=base /bin /bin
+#COPY --from=base /opt/google/gehttpd/bin /opt/google/gehttpd/bin
+#COPY --from=base /usr /usr
+
+EXPOSE 80
+
+ENTRYPOINT ["bash", "/entrypoint.sh"]

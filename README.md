@@ -16,7 +16,8 @@ bash build.sh
 
 For the GEE server run:\
 cd server\
-bash install.sh
+bash install.sh\
+* you should first edit the install.sh file and add your new admin password
 
 For the GEE fusion run:\
 cd fusion\

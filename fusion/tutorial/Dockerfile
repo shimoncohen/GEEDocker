@@ -4,7 +4,8 @@ FROM alpine
 
 COPY --from=base / /
 
-WORKDIR /
+# Set the working directory
+WORKDIR /opt/google/share/tutorials/fusion
 
 # Remove old etrypoint
 RUN rm /entrypoint.sh
@@ -14,12 +15,6 @@ COPY entrypoint.sh /entrypoint.sh
 
 RUN apt-get update &&\
 	apt-get install --no-install-recommends wget
-
-WORKDIR /opt/google/share/tutorials/fusion
-
-#RUN bash download_tutorial.sh
-
-#VOLUME /opt/google/share/tutorials/fusion
 
 # Set entrypoint
 ENTRYPOINT ["bash", "/entrypoint.sh", "tutorial"]

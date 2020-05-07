@@ -1,4 +1,4 @@
-FROM geebuild:v1
+FROM geebuild:v1 AS base
 
 # Download xserver package
 RUN apt-get update &&\
@@ -14,8 +14,22 @@ WORKDIR /opt/myapp/earthenterprise/earth_enterprise/src/installer
 # Install fusion
 RUN echo C | bash install_fusion.sh
 
+# Copy tutorial script
+RUN cp /opt/myapp/earthenterprise/earth_enterprise/tutorial/FusionTutorial/download_tutorial.sh /download_tutorial.sh
+
 # Remove build files
 RUN rm -frd /opt/myapp/earthenterprise
+
+# Remove server files
+RUN rm -frd /tmp/fusion_os_install
+RUN rm -d /gevol/src /gevol/assets
+
+FROM alpine
+
+COPY --from=base / /
+
+# Set the working directory
+WORKDIR /gevol/fusion
 
 # Set entrypoint
 ENTRYPOINT ["bash", "/entrypoint.sh"]

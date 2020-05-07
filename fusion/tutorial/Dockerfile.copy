@@ -1,5 +1,0 @@
-FROM fusiontutorial:v1 AS base
-
-FROM alpine
-
-COPY --from=base / /

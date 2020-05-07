@@ -1,19 +1,42 @@
-FROM geebuild:v1
+FROM geebuild:v1 AS base
+
+# Build arguments
+ARG ADMIN_PASSWORD
 
 WORKDIR /
 
+# Copy entrypoint script
 COPY entrypoint.sh /entrypoint.sh
 
 WORKDIR /opt/myapp/earthenterprise/earth_enterprise/src/installer
 
+# Install dependencies
 RUN apt-get update &&\
 	apt-get install --no-install-recommends python-pil\
 	python-tornado
 
 # Install earth server
-RUN echo 'C\ny' | bash install_server.sh
+RUN echo 'C\nn' | bash install_server.sh
 
+# Remove build files
 RUN rm -frd /opt/myapp/earthenterprise
+RUN rm -frd /tmp
+
+FROM alpine
+
+COPY --from=base / /
+
+# Set the working directory
+WORKDIR /
+
+# Set server address to localhost
+RUN sed -i "s/#ServerName www.example.com:80/ServerName localhost/g" /opt/google/gehttpd/conf/gehttpd.conf
+
+# Set the admin password
+RUN echo "$ADMIN_PASSWORD\n$ADMIN_PASSWORD" | /opt/google/gehttpd/bin/htpasswd -c .htpasswd geapacheuser
+
+# Declare a pgsql data volume
+VOLUME /var/opt/google/pgsql/data
 
 EXPOSE 80
 

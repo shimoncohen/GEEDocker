@@ -1,17 +1,16 @@
-# check for invalid asset names
-ASSET_ROOT="/gevol/assets"
-SOURCE_VOLUME="/gevol/src"
-#INVALID_ASSETROOT_NAMES=$(find $ASSET_ROOT -type d -name "*[\\\&\%\'\"\*\=\+\~\`\?\<\>\:\; ]*" 2> /dev/null)
+ASSET_ROOT="/gevol/fusion/assets"
+SOURCE_VOLUME="/gevol/fusion/src"
 
-#if [ ! -z "$INVALID_ASSETROOT_NAMES" ]; then
-#	echo "yes1"
-#	cd ../
-#	ls
-
+# Configure asset root
 /opt/google/bin/geconfigureassetroot --new --noprompt --assetroot $ASSET_ROOT --srcvol $SOURCE_VOLUME
 
+# Select asset root
 /opt/google/bin/geselectassetroot --noprompt --assetroot $ASSET_ROOT
 
+# Start fusion service
 /etc/init.d/gefusion start
 
+# Run fusion
 /opt/google/bin/fusion
+
+while true; do sleep 3; done;

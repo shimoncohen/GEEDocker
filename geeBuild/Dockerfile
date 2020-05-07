@@ -48,6 +48,9 @@ RUN if test -e earthenterprise/earth_enterprise; then true; else git clone https
 
 WORKDIR /opt/myapp/earthenterprise
 
+# Pull updates
+RUN git pull
+
 # Download git-lfs
 RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash && sudo apt-get -y install --no-install-recommends git-lfs
 
@@ -61,5 +64,3 @@ RUN scons -j3 release=1 build
 
 # Build the install package
 RUN scons -j3 release=1 stage_install
-
-MAINTAINER ShimonCohen

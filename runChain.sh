@@ -29,7 +29,7 @@ do
 done
 
 # Build google earth enterprise
-cd geeDocker && runIfImageDoesNotExists geebuild:v1 bash build.sh
+cd geeBuild && runIfImageDoesNotExists geebuild:v1 bash build.sh
 
 # Run tests
 if [ "$SHOULD_TEST" -eq 1 ]; then

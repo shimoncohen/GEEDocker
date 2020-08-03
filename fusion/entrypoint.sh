@@ -14,5 +14,3 @@ SOURCE_VOLUME="/gevol/fusion/src"
 
 # Run fusion
 /opt/google/bin/fusion
-
-while true; do sleep 3; done;

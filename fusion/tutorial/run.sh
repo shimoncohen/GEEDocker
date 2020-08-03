@@ -1,3 +1,5 @@
+#!/bin/bash
+
 xhost +local:root
 
 # Default values of arguments

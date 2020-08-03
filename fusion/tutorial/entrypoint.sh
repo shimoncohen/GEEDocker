@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ASSET_ROOT="/opt/google/share/tutorials/fusion/assets"
 TUTORIAL_SOURCE_VOLUME="/opt/google/share/tutorials/fusion/src"
 

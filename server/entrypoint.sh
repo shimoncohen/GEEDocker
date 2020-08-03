@@ -1,3 +1,5 @@
+#!/bin/bash
+
 PUBLISH_ROOT="/gevol/server/published_dbs"
 
 # Configure publish root

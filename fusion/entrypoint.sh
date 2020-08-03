@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ASSET_ROOT="/gevol/fusion/assets"
 SOURCE_VOLUME="/gevol/fusion/src"
 

@@ -1,3 +1,5 @@
+#!/bin/bash
+
 PERSISTENT_VOLUME="gee-server-storage"
 
 # Inspect persistent volume

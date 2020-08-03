@@ -20,3 +20,6 @@ bash removeImage.sh geetest
 
 # Remove build
 bash removeImage.sh geebuild
+
+# Remove all <None> images (dangling)
+docker rmi $(docker images --filter "dangling=true" -q --no-trunc)

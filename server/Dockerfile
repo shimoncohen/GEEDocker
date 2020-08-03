@@ -12,7 +12,7 @@ WORKDIR /opt/myapp/earthenterprise/earth_enterprise/src/installer
 
 # Install dependencies
 RUN apt-get update &&\
-	apt-get install --no-install-recommends python-pil\
+	apt-get -y install --no-install-recommends python-pil\
 	python-tornado
 
 # Install earth server

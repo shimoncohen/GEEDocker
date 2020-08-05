@@ -19,7 +19,7 @@ do
 done
 
 if [ $ENTERYPOINT -eq 1 ]; then
-    docker run --rm -it --entrypoint /bin/bash --privileged -v $VOLUME_CONNECT --mount $STORAGE_MOUNT --name servercontainer -p 8081:80 geeserver:v1 &
+    docker run --rm -it --entrypoint /bin/bash --privileged -v $VOLUME_CONNECT --mount $STORAGE_MOUNT --name servercontainer -p 8081:80 geeserver:v1
 else
     docker run --rm --privileged -v $VOLUME_CONNECT --mount $STORAGE_MOUNT --name servercontainer -p 8081:80 geeserver:v1 &
 fi

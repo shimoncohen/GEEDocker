@@ -58,7 +58,7 @@ bash run.sh
 \
 Start fusion with tutorial:
 ```sh
-cd fusion
+cd fusion/tutorial
 bash run.sh
 ```
 \

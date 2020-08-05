@@ -21,5 +21,9 @@ bash removeImage.sh geetest
 # Remove build
 bash removeImage.sh geebuild
 
+# Remove stopped containers
+echo 'Removing stopped containers'
+docker container prune
+
 # Remove all <None> images (dangling)
 docker rmi $(docker images --filter "dangling=true" -q --no-trunc)

@@ -12,48 +12,73 @@ The script runChain.sh accepts the following flags:\
 
 If you wish to create each image independantly you may do so with the given scripts as following:
 
-For the basic build run:\
-cd geeBuild\
+For the basic build run:
+```sh
+cd geeBuild
 bash build.sh
-
-For the GEE server run:\
-cd server\
-bash install.sh\
-** you should first edit the install.sh file and add your new admin password **
-
-For the GEE fusion run:\
-cd fusion\
+```
+\
+For the GEE server run:
+```sh
+cd server
 bash install.sh
-
-For the GEE fusion with tutorial files run:\
-cd fusion/tutorial\
+```
+** you should first edit the install.sh file and add your new admin password **\
+\
+\
+For the GEE fusion run:
+```sh
+cd fusion
 bash install.sh
+```
+\
+For the GEE fusion with tutorial files run:
+```sh
+cd fusion/tutorial
+bash install.sh
+```
 
 
 # Running GEE
 
 
-Start server:\
-cd server\
+Start server:
+```sh
+cd server
 bash run.sh
-
-** make sure the server is running before starting fusion
-
-Start fusion:\
-cd fusion\
+```
+** make sure the server is running before starting fusion\
+\
+\
+Start fusion:
+```sh
+cd fusion
 bash run.sh
-
-Start fusion with tutorial:\
-cd fusion\
+```
+\
+Start fusion with tutorial:
+```sh
+cd fusion
 bash run.sh
+```
+\
+To start gee fusion (including tutorial), or server with bash entrypoint add --entrypoint flag:
+```sh
+bash fusion/run.sh --entrypoint
+bash server/run.sh --entrypoint
+```
 
 
 # Remove images and containers
 
 Remove all of the images and containers created by running the script removeAll.sh
 
-Remove individual images by running the script removeImage.sh as such:\
+Remove individual images by running the script removeImage.sh as such:
+```sh
 bash removeImage.sh <image_name:tag>
-
-Remove containers by running the script removeContainer.sh as such:\
+```
+\
+Remove containers by running the script removeContainer.sh as such:
+```sh
 bash removeContainer.sh <container_name>
+```

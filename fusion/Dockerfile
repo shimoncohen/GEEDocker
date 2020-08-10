@@ -4,8 +4,6 @@ FROM geebuild:v1 AS base
 RUN apt-get update &&\
 	apt-get -y install --no-install-recommends x11-xserver-utils
 
-WORKDIR /
-
 # Copy entrypoint script
 COPY entrypoint.sh /entrypoint.sh
 
@@ -17,16 +15,17 @@ RUN echo C | bash install_fusion.sh
 # Copy tutorial script
 RUN cp /opt/myapp/earthenterprise/earth_enterprise/tutorial/FusionTutorial/download_tutorial.sh /download_tutorial.sh
 
-# Remove build files
-RUN rm -frd /opt/myapp/earthenterprise
-
-# Remove server files
-RUN rm -frd /tmp/fusion_os_install
-RUN rm -d /gevol/src /gevol/assets
+# Remove build and server files
+RUN rm -frd /opt/myapp/earthenterprise &&\
+	rm -frd /tmp/fusion_os_install &&\
+	rm -d /gevol/src /gevol/assets
 
 FROM alpine
 
 COPY --from=base / /
+
+# Put GEE executables in path
+RUN export PATH="/opt/google/bin:$PATH"
 
 # Set the working directory
 WORKDIR /gevol/fusion

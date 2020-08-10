@@ -3,8 +3,6 @@ FROM geebuild:v1 AS base
 # Build arguments
 ARG ADMIN_PASSWORD
 
-WORKDIR /
-
 # Copy entrypoint script
 COPY entrypoint.sh /entrypoint.sh
 
@@ -19,15 +17,11 @@ RUN apt-get update &&\
 RUN echo 'C\nn' | bash install_server.sh
 
 # Remove build files
-RUN rm -frd /opt/myapp/earthenterprise
-RUN rm -frd /tmp
+RUN rm -frd /opt/myapp/earthenterprise /tmp
 
 FROM alpine
 
 COPY --from=base / /
-
-# Set the working directory
-WORKDIR /
 
 # Set server address to localhost
 RUN sed -i "s/#ServerName www.example.com:80/ServerName localhost/g" /opt/google/gehttpd/conf/gehttpd.conf

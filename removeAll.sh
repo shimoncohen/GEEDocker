@@ -15,6 +15,9 @@ bash removeImage.sh geefusion
 # Remove tutorial
 bash removeImage.sh fusiontutorial
 
+# Remove fusion-ssh
+bash removeImage.sh geefusion-ssh
+
 # Remove tests
 bash removeImage.sh geetest
 

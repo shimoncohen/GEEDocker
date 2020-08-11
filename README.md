@@ -43,7 +43,7 @@ For the GEE fusion with ability to connect by ssh run:
 cd fusion/ssh
 bash install.sh
 ```
-** you should first edit the install.sh file and add your root password **\
+** you should first edit the install.sh file and add your root password **
 
 
 # Running GEE

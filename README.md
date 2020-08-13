@@ -1,5 +1,7 @@
 GEE repository: https://github.com/google/earthenterprise
 
+Feel free to use the opensource code, but please fork and reference this repository :)
+
 # GEEDocker
 
 

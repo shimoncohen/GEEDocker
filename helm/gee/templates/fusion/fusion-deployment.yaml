@@ -50,4 +50,3 @@ spec:
       volumes:
         - name: gee-fusion-storage
           {{- toYaml .Values.fusion.storage | nindent 10 }}
-     

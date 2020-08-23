@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "gee.fullname" . }}-server-service
+  labels:
+    {{- include "gee.server.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.services.type }}
+  ports:
+    - port: {{ .Values.services.port }}
+      targetPort: 8000
+  selector:
+    {{- include "gee.server.selectorLabels" . | nindent 4 }}

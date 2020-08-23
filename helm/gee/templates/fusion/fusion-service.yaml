@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "gee.fullname" . }}-fusion-service
+  labels:
+    {{- include "gee.fusion.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.services.type }}
+  ports:
+    - port: {{ .Values.services.port }}
+      targetPort: 8000
+  selector:
+    {{- include "gee.fusion.selectorLabels" . | nindent 4 }}

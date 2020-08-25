@@ -40,7 +40,7 @@ FROM alpine:3.12
 COPY --from=base / /
 
 # Put GEE executables in path
-RUN export PATH="/opt/google/bin:$PATH"
+ENV PATH="/opt/google/bin:${PATH}"
 
 # Set the working directory
 WORKDIR /gevol/fusion

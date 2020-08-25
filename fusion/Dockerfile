@@ -20,12 +20,12 @@ RUN rm -frd /opt/myapp/earthenterprise &&\
 	rm -frd /tmp/fusion_os_install &&\
 	rm -d /gevol/src /gevol/assets
 
-FROM alpine
+FROM alpine:3.12
 
 COPY --from=base / /
 
 # Put GEE executables in path
-RUN export PATH="/opt/google/bin:$PATH"
+ENV PATH="/opt/google/bin:${PATH}"
 
 # Set the working directory
 WORKDIR /gevol/fusion

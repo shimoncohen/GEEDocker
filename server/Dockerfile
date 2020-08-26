@@ -1,8 +1,5 @@
 FROM geebuild:v1 AS base
 
-# Build arguments
-ARG ADMIN_PASSWORD
-
 # Copy entrypoint script
 COPY entrypoint.sh /entrypoint.sh
 
@@ -19,15 +16,18 @@ RUN echo 'C\nn' | bash install_server.sh
 # Remove build files
 RUN rm -frd /opt/myapp/earthenterprise /tmp
 
-FROM alpine
+FROM alpine:3.12
+
+# Build arguments
+ARG ADMIN_PASSWORD=""
 
 COPY --from=base / /
 
 # Set server address to localhost
 RUN sed -i "s/#ServerName www.example.com:80/ServerName localhost/g" /opt/google/gehttpd/conf/gehttpd.conf
 
-# Set the admin password
-RUN echo "$ADMIN_PASSWORD\n$ADMIN_PASSWORD" | /opt/google/gehttpd/bin/htpasswd -c .htpasswd geapacheuser
+# Set the admin password if given
+RUN if [ -n "$ADMIN_PASSWORD" ]; then echo "$ADMIN_PASSWORD" | /opt/google/gehttpd/bin/htpasswd -ci /opt/google/gehttpd/conf.d/.htpasswd geapacheuser; fi;
 
 # Declare a pgsql data volume
 VOLUME /var/opt/google/pgsql/data

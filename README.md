@@ -7,12 +7,14 @@ Feel free to use the opensource code, but if you take it to your repository, ple
 
 Build and run Google Earth Enterprise with docker
 
+### Create all images with runChain script:
 To create all of the images run runChain.sh\
-The script runChain.sh accepts the following flags:\
---test (for running the GEE tests to check that the build was successful)\
---tutorial (for creating an additional fusion image with the tutorial files)\
---admin_password <wanted_password> (for changing default server password)
+The script runChain.sh accepts the following flags:
+* --test (for running the GEE tests to check that the build was successful)
+* --tutorial (for creating an additional fusion image with the tutorial files)
+* --admin_password <wanted_password> (for changing default server password)
 
+### Create images one by one:
 If you wish to create each image independantly you may do so with the given scripts as following:
 
 For the basic build run:

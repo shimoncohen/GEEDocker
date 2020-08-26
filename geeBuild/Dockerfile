@@ -1,6 +1,7 @@
 FROM ubuntu:16.04
 
 ARG GEE_path=earthenterprise
+ARG TAG="5.3.5-1610.20"
 
 RUN mkdir -p /opt/myapp
 
@@ -15,16 +16,7 @@ RUN if test -e earthenterprise; then cd earthenterprise && rm temp.txt; else rm 
 # Install GEE dependencies
 RUN apt-get update &&\
 	apt-get -y install --no-install-recommends sudo\
-	g++\
-	scons\
-	python2.7\
-	python-pip\
-	git\
-	ca-certificates\
-	curl\
-	rsync\
-	lsb-release\
-	libpng12-dev\
+	scons python-pip git ca-certificates curl rsync lsb-release\
 	alien autoconf automake bison++ bisonc++ cmake doxygen dpkg \
     flex freeglut3-dev g++ gcc gettext \
     libboost-all-dev libc6 libc6-dev libcap-dev libfreetype6 libfreetype6-dev \
@@ -38,18 +30,17 @@ RUN apt-get update &&\
     python-dev python-imaging python-psycopg2 \
     python-setuptools python2.7 python2.7-dev python-lxml python-git \
     shunit2 swig xorg-dev zlib1g-dev
+
 RUN pip install --upgrade pip
-RUN pip install setuptools
-RUN pip install gcg
-RUN apt-get update
+RUN pip install setuptools gcg
 
 # Clone GEE from repository
-RUN if test -e earthenterprise/earth_enterprise; then true; else git clone https://github.com/google/earthenterprise.git; fi
+RUN if test -e earthenterprise/earth_enterprise; then true; else git clone --branch $TAG https://github.com/google/earthenterprise.git; fi
 
 WORKDIR /opt/myapp/earthenterprise
 
 # Pull updates
-RUN git pull
+# RUN git pull
 
 # Download git-lfs
 RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash && sudo apt-get -y install --no-install-recommends git-lfs

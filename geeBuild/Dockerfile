@@ -34,6 +34,15 @@ RUN apt-get update &&\
 RUN pip install --upgrade pip
 RUN pip install setuptools gcg
 
+# Create symbolic links to binaries needed in /usr/lib
+RUN ln -s /usr/lib/x86_64-linux-gnu/libz* /usr/lib/
+RUN ln -s /usr/lib/x86_64-linux-gnu/libjpeg* /usr/lib/
+RUN ln -s /usr/lib/x86_64-linux-gnu/libtiff* /usr/lib/
+RUN ln -s /usr/lib/x86_64-linux-gnu/libfreetype* /usr/lib/
+RUN ln -s /usr/lib/x86_64-linux-gnu/liblcms* /usr/lib/
+RUN ln -s /usr/lib/x86_64-linux-gnu/libtcl* /usr/lib/
+RUN ln -s /usr/lib/x86_64-linux-gnu/libtk* /usr/lib/
+
 # Clone GEE from repository
 RUN if test -e earthenterprise/earth_enterprise; then true; else git clone --branch $TAG https://github.com/google/earthenterprise.git; fi
 

@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "gee.fullname" . }}-server
+  labels:
+    {{- include "gee.server.labels" . | nindent 4 }} 
+    
+spec:
+{{- if not .Values.server.autoscaling.enabled }}
+  replicas: {{ .Values.server.replicaCount }}
+{{- end }}
+  selector:
+    matchLabels:
+      {{- include "gee.server.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "gee.server.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.images.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "gee.serviceAccountName" . }}
+      containers:
+        - name: {{ .Chart.Name }}-server
+          image: "{{ .Values.images.repository }}/{{ .Values.server.image }}:{{ .Values.server.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.images.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          volumeMounts:
+            - name: gee-server-storage
+              mountPath: /gevol/server
+            - name: gee-server-db-storage
+              mountPath: /var/opt/google/pgsql/data
+          resources:
+            {{- toYaml .Values.server.resources | nindent 12 }}
+          livenessProbe:
+            exec:
+              command:
+              - service geserver status
+            initialDelaySeconds: 10
+            periodSeconds: 3
+          readinessProbe:
+            exec:
+              command:
+              - service geserver status
+            initialDelaySeconds: 10
+            periodSeconds: 3
+          securityContext:
+            privileged: true
+            allowPrivilegeEscalation: true
+            capabilities:
+              add:
+                - '*'
+
+      volumes:
+        - name: gee-server-storage
+          {{- toYaml .Values.server.storage | nindent 10 }}
+        - name: gee-server-db-storage
+          {{- toYaml .Values.server.dbStorage | nindent 10 }}

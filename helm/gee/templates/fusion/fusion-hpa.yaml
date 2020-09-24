@@ -1,0 +1,28 @@
+{{- if .Values.fusion.autoscaling.enabled }}
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "gee.fullname" . }}-fusion-hpa
+  labels:
+    {{- include "gee.fusion.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "gee.fullname" . }}-fusion
+  minReplicas: {{ .Values.fusion.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.fusion.autoscaling.maxReplicas }}
+  metrics:
+  {{- if .Values.fusion.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: {{ .Values.fusion.autoscaling.targetCPUUtilizationPercentage }}
+  {{- end }}
+  {{- if .Values.fusion.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: {{ .Values.fusion.autoscaling.targetMemoryUtilizationPercentage }}
+  {{- end }}
+{{- end }}

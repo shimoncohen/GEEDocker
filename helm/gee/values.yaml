@@ -1,0 +1,122 @@
+# Default values for gee-fusion.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+images:
+  repository: localhost:5000
+  pullPolicy: Always
+  imagePullSecrets: []
+
+fusion:
+  image: "geefusion"
+  tag: "v1"
+  #set constant number of replicas if auto-scaling isn't enables
+  replicaCount: 1
+  #auto-scaling config
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+  storage: {}
+    #storage volume: mapping can of any type 
+    #persistentVolumeClaim:
+    #  claimName: gee-fusion-claim
+    #local linux map
+    #hostPath: 
+    #  path: ~/gee/fusion
+    #  type: DirectoryOrCreate 
+    #local windows map
+    # hostPath:
+    #  path: /d/tmp/gee/fusion
+    #  type: DirectoryOrCreate 
+
+server:
+  image: "gee-projects-server"
+  tag: "v1"
+  #set constant number of replicas if auto-scaling isn't enables
+  replicaCount: 1
+  #auto-scaling config
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+  storage: {}
+    #storage volume: mapping can of any type 
+    #persistentVolumeClaim:
+    #  claimName: gee-server-claim
+    #local linux map
+    #hostPath: 
+    #  path: ~/gee/server/storage
+    #  type: DirectoryOrCreate
+    #local windows map
+    #hostPath: 
+    #  path: /d/tmp/gee/server/storage
+    #  type: DirectoryOrCreate
+  dbStorage: {}
+    #db storage volume: mapping can of any type 
+    #persistentVolumeClaim:
+    #  claimName: gee-server-claim
+    #local linux map
+    #hostPath:
+    #  path: ~/gee/server/db
+    #  type: DirectoryOrCreate
+    #local windows map
+    #hostPath:
+    #  path: /d/tmp/gee/server/db
+    #  type: DirectoryOrCreate
+
+services:
+  port: 80
+  type: LoadBalancer
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+ingress:
+  enabled: false
+  # annotations:
+  #   # kubernetes.io/ingress.class: nginx
+  #   # kubernetes.io/tls-acme: "true"
+  #   kubernetes.io/ingress.class: azure/application-gateway
+  #   cert-manager.io/cluster-issuer: letsencrypt-prod
+  #   cert-manager.io/acme-challenge-type: http01
+  # hosts:
+  #   - host: gee.covid-97.com
+  #     paths: [ "/fusion" ]
+  # tls:
+  #   - secretName: tls-secret
+  #     hosts:
+  #       - gee.covid-97.com
+

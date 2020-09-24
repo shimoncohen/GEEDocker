@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "gee.fullname" . }}-fusion
+  labels:
+    {{- include "gee.fusion.labels" . | nindent 4 }} 
+    
+spec:
+# {{- if not .Values.fusion.autoscaling.enabled }}
+#   replicas: {{ .Values.fusion.replicaCount }}
+# {{- end }}
+  selector:
+    matchLabels:
+      {{- include "gee.fusion.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "gee.fusion.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.images.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "gee.serviceAccountName" . }}
+      containers:
+        - name: {{ .Chart.Name }}-fusion
+          image: "{{ .Values.images.repository }}/{{ .Values.fusion.image }}:{{ .Values.fusion.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.images.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          volumeMounts:
+            - name: gee-fusion-storage
+              mountPath: /gevol/fusion
+          resources:
+            {{- toYaml .Values.fusion.resources | nindent 12 }}
+          livenessProbe:
+            exec:
+              command:
+              - service gefusion status
+            initialDelaySeconds: 10
+            periodSeconds: 3
+          readinessProbe:
+            exec:
+              command:
+              - service gefusion status
+            initialDelaySeconds: 10
+            periodSeconds: 3
+      volumes:
+        - name: gee-fusion-storage
+          {{- toYaml .Values.fusion.storage | nindent 10 }}

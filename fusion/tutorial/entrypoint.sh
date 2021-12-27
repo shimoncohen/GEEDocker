@@ -6,6 +6,17 @@ TUTORIAL_SOURCE_VOLUME="/opt/google/share/tutorials/fusion/src"
 mkdir -p $ASSET_ROOT
 mkdir -p $TUTORIAL_SOURCE_VOLUME
 
+##### handle termination signal #####
+function cleanup() {
+    echo 'Stopping fusion service'
+    # Stop fusion service
+    /etc/init.d/gefusion stop
+}
+
+trap 'cleanup' SIGTERM
+
+#####
+
 if [ ! -f "$ASSET_ROOT/.config/volumes.xml" ]; then
     # Create asset root
     /opt/google/bin/geconfigureassetroot --new --noprompt --assetroot $ASSET_ROOT --srcvol $TUTORIAL_SOURCE_VOLUME

@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker build --rm -t geefusion:v1 -f Dockerfile .
+docker build --rm --no-cache -t geefusion:v1 -f Dockerfile .

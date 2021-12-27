@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VOLUME_CONNECT="/gevol/server:/gevol/server"
-STORAGE_MOUNT="source=gee-server-storage,target=/var/opt/google/pgsql/data"
+PGVOL="-v /gevol/data:/var/opt/google/pgsql/data"
 
 # Default values of arguments
 ENTERYPOINT=0
@@ -35,13 +35,19 @@ docker_command_str="docker run \
     %s \
     -v $VOLUME_CONNECT \
     -v /tmp/.X11-unix:/tmp/.X11-unix \
-    --mount $STORAGE_MOUNT \
     %s \
     --name servercontainer \
     -p 8081:80 \
     geeserver-slim:v1"
 
 docker_command=$(printf "$docker_command_str" "$ATTACH_DOCKER_FLAG" "$ATTACH_HOST_FLAG" "")
+
+# If pgdata isn't present, then copy the initial files
+if [ ! -d "/gevol/data" ]; then
+    $docker_command
+    sudo docker cp servercontainer:/var/opt/google/pgsql/data /gevol/data
+    docker rm -f servercontainer
+fi
 
 # Edit entrypoint if requested
 if [ $ENTERYPOINT -eq 1 ]; then

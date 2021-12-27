@@ -24,6 +24,14 @@ fi
 # Select publish root
 /opt/google/bin/geselectpublishroot $PUBLISH_ROOT
 
+# Change ownership of pg data folder if needed
+PG_DATA_PATH="/var/opt/google/pgsql/data"
+USER=$(stat -c '%U' $PG_DATA_PATH)
+GROUP=$(stat -c '%G' $PG_DATA_PATH)
+if [[ $USER != "gepguser" || $GROUP != "gegroup" ]]; then
+	chown -R gepguser:gegroup $PG_DATA_PATH
+fi
+
 # Run server
 /etc/init.d/geserver start
 

@@ -13,15 +13,8 @@ RUN apt-get update &&\
 # Install earth server
 RUN echo 'C\nn' | bash install_server.sh
 
-# Remove build files
-RUN rm -frd /opt/myapp/earthenterprise /tmp
-
-FROM alpine:3.12
-
 # Build arguments
 ARG ADMIN_PASSWORD=""
-
-COPY --from=base / /
 
 # Set server address to localhost
 RUN sed -i "s/#ServerName www.example.com:80/ServerName localhost/g" /opt/google/gehttpd/conf/gehttpd.conf

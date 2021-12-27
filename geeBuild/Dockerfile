@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:16.04 AS base
 
 ARG GEE_path=earthenterprise
 ARG TAG="5.3.5-1610.20"
@@ -15,9 +15,9 @@ RUN if test -e earthenterprise; then cd earthenterprise && rm temp.txt; else rm 
 
 # Install GEE dependencies
 RUN apt-get update &&\
-	apt-get -y install --no-install-recommends sudo\
-	scons python-pip git ca-certificates curl rsync lsb-release\
-	alien autoconf automake bison++ bisonc++ cmake doxygen dpkg \
+    apt-get -y install --no-install-recommends sudo\
+    scons python-pip git ca-certificates curl rsync lsb-release\
+    alien autoconf automake bison++ bisonc++ cmake doxygen dpkg \
     flex freeglut3-dev g++ gcc gettext \
     libboost-all-dev libc6 libc6-dev libcap-dev libfreetype6 libfreetype6-dev \
     libgdbm-dev libgeos-dev libgeos++-dev libgif-dev libgtest-dev \
@@ -64,3 +64,17 @@ RUN scons -j3 release=1 build
 
 # Build the install package
 RUN scons -j3 release=1 stage_install
+
+RUN mv /opt/myapp/earthenterprise/earth_enterprise/src/version.txt /version.txt && \
+    mv /opt/myapp/earthenterprise/earth_enterprise/src/installer /installer && \
+    mv /opt/myapp/earthenterprise/earth_enterprise/tutorial/FusionTutorial /FusionTutorial
+RUN rm -frd /opt/myapp
+RUN mkdir /opt/myapp/earthenterprise/earth_enterprise/src && \
+    mkdir /opt/myapp/earthenterprise/earth_enterprise/tutorial && \
+    mv /version.txt /opt/myapp/earthenterprise/earth_enterprise/src/version.txt && \
+    mv /installer /opt/myapp/earthenterprise/earth_enterprise/src/installer && \
+    mv /FusionTutorial /opt/myapp/earthenterprise/earth_enterprise/tutorial/FusionTutorial
+
+FROM ubuntu:16.04
+
+COPY --from=base / /

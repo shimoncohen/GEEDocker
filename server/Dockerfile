@@ -23,9 +23,6 @@ RUN sed -i "s/#ServerName www.example.com:80/ServerName ${IP}/g" /opt/google/geh
 # Set the admin password if given
 RUN if [ -n "$ADMIN_PASSWORD" ]; then echo "$ADMIN_PASSWORD" | /opt/google/gehttpd/bin/htpasswd -ci /opt/google/gehttpd/conf.d/.htpasswd geapacheuser; fi;
 
-# Declare a pgsql data volume
-VOLUME /var/opt/google/pgsql/data
-
 EXPOSE 80
 
 ENTRYPOINT ["bash", "/entrypoint.sh"]

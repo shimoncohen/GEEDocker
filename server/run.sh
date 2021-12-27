@@ -1,9 +1,8 @@
 #!/bin/bash
 
-VOLUME_CONNECT="/gevol/server:/gevol/server"
-PGVOL="-v /gevol/data:/var/opt/google/pgsql/data"
-
 # Default values of arguments
+GEVOL="/gevol"
+PGVOL="-v $GEVOL/data:/var/opt/google/pgsql/data"
 ENTERYPOINT=0
 HOST=""
 
@@ -11,6 +10,17 @@ HOST=""
 # Taken from: https://pretzelhands.com/posts/command-line-flags
 for arg in "$@"; do
     case $arg in
+    --gevol=*)
+        GEVOL="${arg#*=}"
+        GEVOL=$(realpath $GEVOL)
+        shift # Remove
+        ;;
+    --gevol)
+        GEVOL="$2"
+        GEVOL=$(realpath $GEVOL)
+        shift # Remove
+        shift
+        ;;
     --entrypoint)
         ENTERYPOINT=1
         shift # Remove
@@ -27,13 +37,17 @@ for arg in "$@"; do
     esac
 done
 
+if [ ! -d $GEVOL ]; then
+    echo "No such path $GEVOL" && exit 1
+fi
+
 ATTACH_DOCKER_FLAG="-d"
 ATTACH_HOST_FLAG=""
 
 docker_command_str="docker run \
     %s \
     %s \
-    -v $VOLUME_CONNECT \
+    -v $GEVOL/server:/gevol/server \
     -v /tmp/.X11-unix:/tmp/.X11-unix \
     %s \
     --name servercontainer \

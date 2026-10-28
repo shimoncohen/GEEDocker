@@ -37,9 +37,6 @@ jobs:
           - name: geefusion-ssh
             paths: fusion/ssh
             push: false
-          - name: geeclient
-            paths: geeClient
-            push: true
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -100,7 +97,6 @@ jobs:
               docker build --build-arg BASE_IMAGE="$BASE" -t "$NAME" fusion
               docker build --build-arg BASE_IMAGE="$NAME" -t fusiontutorial fusion/tutorial ;;
             geefusion-ssh) docker build --build-arg BASE_IMAGE="$BASE" -t "$NAME" fusion/ssh ;;
-            geeclient) docker build -t "$NAME" geeClient ;;
           esac
 
       - name: Push

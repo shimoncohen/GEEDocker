@@ -15,7 +15,7 @@ The script runChain.sh accepts the following flags:
 ### Use prebuilt images:
 CI publishes images to GitHub Container Registry on every push to master:
 * `ghcr.io/shimoncohen/geebuild:<gee_tag>` (the compiled GEE base, rebuilt only when `geeBuild/` changes)
-* `ghcr.io/shimoncohen/geeserver`, `geefusion`, `fusiontutorial`, `geefusion-ssh`, `geeclient`, tagged `master` and `sha-<commit>`
+* `ghcr.io/shimoncohen/geeserver`, `geefusion`, `fusiontutorial`, `geefusion-ssh`, tagged `master` and `sha-<commit>`
 
 Images hold no credentials; they are supplied when the container starts (see Running GEE).
 

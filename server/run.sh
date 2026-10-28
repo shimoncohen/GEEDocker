@@ -52,7 +52,7 @@ docker_command_str="docker run \
     %s \
     --name servercontainer \
     -p 8081:80 \
-    geeserver-slim:v1"
+    geeserver:v1"
 
 docker_command=$(printf "$docker_command_str" "$ATTACH_DOCKER_FLAG" "$ATTACH_HOST_FLAG" "")
 

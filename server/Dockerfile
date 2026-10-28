@@ -12,7 +12,7 @@ RUN apt-get update &&\
 	python-tornado
 
 # Install earth server
-RUN echo 'C\nn' | bash install_server.sh
+RUN echo 'C\nn' | bash install_server.sh -hnf
 
 # Build arguments
 ARG ADMIN_PASSWORD=""

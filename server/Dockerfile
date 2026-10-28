@@ -1,4 +1,5 @@
-FROM geebuild:v1 AS base
+ARG BASE_IMAGE=geebuild:v1
+FROM ${BASE_IMAGE} AS base
 
 # Copy entrypoint script
 COPY entrypoint.sh /entrypoint.sh

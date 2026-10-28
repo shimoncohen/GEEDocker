@@ -1,0 +1,115 @@
+name: images
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_run:
+    workflows: [geebuild]
+    types: [completed]
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: images-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: geeserver
+            paths: server
+            push: true
+          - name: geefusion
+            paths: fusion ':!fusion/ssh'
+            push: true
+          # Not pushed: the image bakes ROOT_PASSWORD and enables root SSH login (#10).
+          - name: geefusion-ssh
+            paths: fusion/ssh
+            push: false
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Check for changes
+        id: changes
+        env:
+          EVENT: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          BEFORE: ${{ github.event.before }}
+          PATHS: ${{ matrix.paths }}
+        run: |
+          case "$EVENT" in
+            pull_request) range="$PR_BASE...HEAD" ;;
+            push) range="$BEFORE..HEAD" ;;
+            *) range="" ;;
+          esac
+          eval "set -- $PATHS"
+          if [ -z "$range" ] || ! git rev-parse -q --verify "${range%%.*}^{commit}" >/dev/null; then
+            build=true
+          elif [ "$EVENT" = push ] && ! git diff --quiet "$range" -- geeBuild; then
+            # The geebuild workflow publishes a new base first, then re-triggers this one.
+            build=false
+          elif git diff --quiet "$range" -- "$@" .github/workflows/images.yml; then
+            build=false
+          else
+            build=true
+          fi
+          echo "build=$build" >> "$GITHUB_OUTPUT"
+          echo "range=$range build=$build"
+
+      - name: Resolve image names
+        if: steps.changes.outputs.build == 'true'
+        id: img
+        run: |
+          registry="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}"
+          echo "registry=$registry" >> "$GITHUB_OUTPUT"
+          echo "base=$registry/geebuild:$(grep -oP '^ARG TAG="\K[^"]+' geeBuild/Dockerfile)" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/login-action@v4.7.0
+        if: steps.changes.outputs.build == 'true'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Plain docker build, not buildx: fusion/tutorial must see the geefusion image built just before it.
+      - name: Build
+        if: steps.changes.outputs.build == 'true'
+        env:
+          NAME: ${{ matrix.name }}
+          BASE: ${{ steps.img.outputs.base }}
+        run: |
+          case "$NAME" in
+            geeserver) docker build --build-arg BASE_IMAGE="$BASE" --build-arg IP=localhost -t "$NAME" server ;;
+            geefusion)
+              docker build --build-arg BASE_IMAGE="$BASE" -t "$NAME" fusion
+              docker build --build-arg BASE_IMAGE="$NAME" -t fusiontutorial fusion/tutorial ;;
+            geefusion-ssh) docker build --build-arg BASE_IMAGE="$BASE" -t "$NAME" fusion/ssh ;;
+          esac
+
+      - name: Push
+        if: steps.changes.outputs.build == 'true' && matrix.push && github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+        env:
+          NAME: ${{ matrix.name }}
+          REGISTRY: ${{ steps.img.outputs.registry }}
+        run: |
+          images="$NAME"
+          [ "$NAME" = geefusion ] && images="$images fusiontutorial"
+          for image in $images; do
+            for tag in master "sha-${GITHUB_SHA::7}"; do
+              docker tag "$image" "$REGISTRY/$image:$tag"
+              docker push "$REGISTRY/$image:$tag"
+            done
+          done

@@ -69,6 +69,12 @@ RUN scons -j"$(nproc)" release=1 stage_install
 # Tests need the build tree, which the base stage deletes.
 FROM build AS test
 
+# Root bypasses file permissions, which fails permission tests such as KhxmlTest.CreateDocumentNoPerms.
+RUN useradd -m geetest && \
+    chown -R geetest:geetest /opt/myapp/earthenterprise/earth_enterprise/src/NATIVE-REL-x86_64
+
+USER geetest
+
 WORKDIR /opt/myapp/earthenterprise/earth_enterprise/src/NATIVE-REL-x86_64/bin/tests
 
 RUN ./RunAllTests.pl

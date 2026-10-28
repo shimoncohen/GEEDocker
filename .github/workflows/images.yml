@@ -29,17 +29,12 @@ jobs:
         include:
           - name: geeserver
             paths: server
-            push: true
           - name: geefusion
             paths: fusion ':!fusion/ssh'
-            push: true
-          # Not pushed: the image bakes ROOT_PASSWORD and enables root SSH login (#10).
           - name: geefusion-ssh
             paths: fusion/ssh
-            push: false
           - name: geeclient
             paths: geeClient
-            push: true
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -103,8 +98,40 @@ jobs:
             geeclient) docker build -t "$NAME" geeClient ;;
           esac
 
+      - name: Smoke test credentials
+        if: steps.changes.outputs.build == 'true' && (matrix.name == 'geeserver' || matrix.name == 'geefusion-ssh')
+        env:
+          NAME: ${{ matrix.name }}
+        run: |
+          set -u
+          rc=0; timeout -k 10 120 docker run --name nocred "$NAME" || rc=$?
+          docker rm -f nocred >/dev/null
+          [ "$rc" = 1 ] || { echo "::error::$NAME without its credential file exited $rc, expected 1"; exit 1; }
+          secrets="$RUNNER_TEMP/secrets"
+          mkdir -p "$secrets"
+          if [ "$NAME" = geeserver ]; then
+            openssl rand -hex 16 > "$secrets/gee_admin_password"
+            docker run -d --name smoke -p 127.0.0.1:8081:80 -v "$secrets/gee_admin_password:/run/secrets/gee_admin_password:ro" "$NAME"
+            url=http://127.0.0.1:8081/admin/
+            for _ in $(seq 60); do [ "$(curl -s -o /dev/null -w '%{http_code}' "$url")" = 401 ] && break; sleep 5; done
+            code() { curl -s -o /dev/null -w '%{http_code}' "$@" "$url"; }
+            [ "$(code)" = 401 ] || { echo "::error::/admin/ without credentials did not return 401"; docker logs smoke; exit 1; }
+            [ "$(code -u geapacheuser:geeadmin)" = 401 ] || { echo "::error::upstream default password still accepted"; exit 1; }
+            [ "$(code -u "geapacheuser:$(cat "$secrets/gee_admin_password")")" = 200 ] || { echo "::error::configured admin password rejected"; docker logs smoke; exit 1; }
+          else
+            ssh-keygen -q -t ed25519 -N '' -f "$secrets/key"
+            docker run -d --name smoke -p 127.0.0.1:30022:22 -v "$secrets/key.pub:/run/secrets/authorized_keys:ro" "$NAME"
+            opts=(-o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=5 -p 30022)
+            for _ in $(seq 30); do ssh-keyscan -p 30022 127.0.0.1 >/dev/null 2>&1 && break; sleep 2; done
+            ssh "${opts[@]}" -i "$secrets/key" root@127.0.0.1 true || { echo "::error::key login failed"; docker logs smoke; exit 1; }
+            # The "none" method makes sshd list every login method it would accept.
+            offered=$(ssh "${opts[@]}" -o PreferredAuthentications=none root@127.0.0.1 true 2>&1 || true)
+            [[ "$offered" == *"Permission denied (publickey)."* ]] || { echo "::error::expected key-only login, got: $offered"; exit 1; }
+          fi
+          docker rm -f smoke
+
       - name: Push
-        if: steps.changes.outputs.build == 'true' && matrix.push && github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+        if: steps.changes.outputs.build == 'true' && github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
         env:
           NAME: ${{ matrix.name }}
           REGISTRY: ${{ steps.img.outputs.registry }}

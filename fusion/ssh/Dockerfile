@@ -1,9 +1,6 @@
 ARG BASE_IMAGE=geebuild:v1
 FROM ${BASE_IMAGE} AS base
 
-# Build arguments
-ARG ROOT_PASSWORD
-
 # Download xserver package
 RUN apt-get update &&\
 	apt-get -y install --no-install-recommends openssh-server
@@ -26,8 +23,7 @@ RUN rm -frd /opt/myapp/earthenterprise &&\
 
 # From: https://docs.docker.com/engine/examples/running_ssh_service/
 RUN mkdir /var/run/sshd
-RUN echo "root:$ROOT_PASSWORD" | chpasswd
-RUN sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
 
 # SSH login fix. Otherwise user is kicked off after login
 RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd

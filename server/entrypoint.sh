@@ -1,6 +1,14 @@
 #!/bin/bash
 
 PUBLISH_ROOT="/gevol/server/published_dbs"
+ADMIN_PASSWORD_FILE="${ADMIN_PASSWORD_FILE:-/run/secrets/gee_admin_password}"
+
+# Refuse to start on the upstream default admin password.
+if [ ! -s "$ADMIN_PASSWORD_FILE" ]; then
+	echo "Admin password file $ADMIN_PASSWORD_FILE is missing or empty" >&2
+	exit 1
+fi
+/opt/google/gehttpd/bin/htpasswd -ci /opt/google/gehttpd/conf.d/.htpasswd geapacheuser < "$ADMIN_PASSWORD_FILE"
 
 ##### handle termination signal #####
 function cleanup() {

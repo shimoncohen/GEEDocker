@@ -11,14 +11,13 @@ The script runChain.sh accepts the following flags:
 * --tag <wanted_tag> (to specify wanted GEE tag, Default is [5.3.5-1610.20](https://github.com/google/earthenterprise/releases/tag/5.3.5-1610.20))
 * --test (for running the GEE tests to check that the build was successful)
 * --tutorial (for creating an additional fusion image with the tutorial files)
-* --admin_password <wanted_password> (for changing default server password)
 
 ### Use prebuilt images:
 CI publishes images to GitHub Container Registry on every push to master:
 * `ghcr.io/shimoncohen/geebuild:<gee_tag>` (the compiled GEE base, rebuilt only when `geeBuild/` changes)
-* `ghcr.io/shimoncohen/geeserver`, `geefusion`, `fusiontutorial`, `geeclient`, tagged `master` and `sha-<commit>`
+* `ghcr.io/shimoncohen/geeserver`, `geefusion`, `fusiontutorial`, `geefusion-ssh`, `geeclient`, tagged `master` and `sha-<commit>`
 
-`geefusion-ssh` is built in CI but not published. The published server image has no admin password set.
+Images hold no credentials; they are supplied when the container starts (see Running GEE).
 
 To skip the long GEE compile locally, build an image on top of the published base:
 ```sh
@@ -44,13 +43,6 @@ For the GEE server run:
 cd server
 bash install.sh
 ```
-or the following, to set server password:
-```sh
-cd server
-bash install.sh --admin_password <wanted_password>
-```
-**Refer to https://www.opengee.org/geedocs/5.2.2/answer/3470759.html for information about server password**\
-\
 \
 For the GEE fusion run:
 ```sh
@@ -69,7 +61,6 @@ For the GEE fusion with ability to connect by ssh run:
 cd fusion/ssh
 bash install.sh
 ```
-** you should first edit the install.sh file and add your root password **
 
 
 # Running GEE
@@ -78,8 +69,10 @@ bash install.sh
 Start server:
 ```sh
 cd server
-bash run.sh
+bash run.sh --admin_password_file <path>
 ```
+The file holds the admin password for user `geapacheuser` (the `/admin/` pages). The server refuses to start without it.
+**Refer to https://www.opengee.org/geedocs/5.2.2/answer/3470759.html for information about server password**\
 ** make sure the server is running before starting fusion\
 \
 \
@@ -98,14 +91,14 @@ bash run.sh
 Start fusion with ssh ability:
 ```sh
 cd fusion/ssh
-bash run.sh
+bash run.sh --authorized_keys ~/.ssh/id_ed25519.pub
 ```
-** you should first edit the run.sh file and choose local port for mapping **\
+Log in as root with that key on `127.0.0.1:30022` (`ssh -p 30022 root@127.0.0.1`). Password login is disabled.\
 \
 To start gee fusion (including tutorial), or server with bash entrypoint add --entrypoint flag:
 ```sh
 bash fusion/run.sh --entrypoint
-bash server/run.sh --entrypoint
+bash server/run.sh --entrypoint --admin_password_file <path>
 ```
 
 

@@ -1,3 +1,5 @@
+#!/bin/bash
+
 function runIfImageDoesNotExists {
 
     local IMAGE_NAME=$1

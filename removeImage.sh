@@ -1,3 +1,5 @@
+#!/bin/bash
+
 if [ "$#" -eq 0 ]; then
 	echo "Error. Please specify the name of an image."
 	exit

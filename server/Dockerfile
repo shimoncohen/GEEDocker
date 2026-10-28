@@ -15,14 +15,10 @@ RUN apt-get update &&\
 RUN echo 'C\nn' | bash install_server.sh -hnf
 
 # Build arguments
-ARG ADMIN_PASSWORD=""
 ARG IP=""
 
 # Set server address to localhost
 RUN sed -i "s/#ServerName www.example.com:80/ServerName ${IP}/g" /opt/google/gehttpd/conf/gehttpd.conf
-
-# Set the admin password if given
-RUN if [ -n "$ADMIN_PASSWORD" ]; then echo "$ADMIN_PASSWORD" | /opt/google/gehttpd/bin/htpasswd -ci /opt/google/gehttpd/conf.d/.htpasswd geapacheuser; fi;
 
 EXPOSE 80
 

@@ -1,8 +1,8 @@
 ### Stop running containers ###
 
-bash removeContainer.sh serverContainer
+bash removeContainer.sh servercontainer
 
-bash removeContainer.sh fusionContainer
+bash removeContainer.sh fusioncontainer
 
 ### Remove images ###
 

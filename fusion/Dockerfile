@@ -21,7 +21,7 @@ RUN rm -frd /opt/myapp/earthenterprise &&\
 	rm -frd /tmp/fusion_os_install &&\
 	rm -d /gevol/src /gevol/assets
 
-FROM alpine:3.12
+FROM scratch
 
 COPY --from=base / /
 

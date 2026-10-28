@@ -36,7 +36,7 @@ ENV NOTVISIBLE "in users profile"
 RUN echo "export VISIBLE=now" >> /etc/profile
 
 
-FROM alpine:3.12
+FROM scratch
 
 COPY --from=base / /
 

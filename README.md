@@ -24,6 +24,18 @@ To skip the long GEE compile locally, build an image on top of the published bas
 docker build --build-arg BASE_IMAGE=ghcr.io/shimoncohen/geebuild:5.3.5-1610.20 -t geeserver:v1 server
 ```
 
+### Use prebuilt images:
+CI publishes images to GitHub Container Registry on every push to master:
+* `ghcr.io/shimoncohen/geebuild:<gee_tag>` (the compiled GEE base, rebuilt only when `geeBuild/` changes)
+* `ghcr.io/shimoncohen/geeserver`, `geefusion`, `fusiontutorial`, tagged `master` and `sha-<commit>`
+
+`geefusion-ssh` is built in CI but not published. The published server image has no admin password set.
+
+To skip the long GEE compile locally, build an image on top of the published base:
+```sh
+docker build --build-arg BASE_IMAGE=ghcr.io/shimoncohen/geebuild:5.3.5-1610.20 -t geeserver:v1 server
+```
+
 ### Create images one by one:
 If you wish to create each image independantly you may do so with the given scripts as following:
 

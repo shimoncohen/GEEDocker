@@ -61,7 +61,7 @@ cd geeBuild && runIfImageDoesNotExists geebuild:v1 bash build.sh $BUILD_TAG_STRI
 
 # Run tests
 if [ "$SHOULD_TEST" -eq 1 ]; then
-    cd ../geeTest && bash run.sh
+    cd ../geeTest && bash run.sh ${BUILD_TAG:+--build-arg TAG=$BUILD_TAG}
 fi
 
 # Check if a password was given

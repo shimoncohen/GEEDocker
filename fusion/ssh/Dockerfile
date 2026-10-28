@@ -14,7 +14,7 @@ COPY entrypoint.sh /entrypoint.sh
 WORKDIR /opt/myapp/earthenterprise/earth_enterprise/src/installer
 
 # Install fusion
-RUN echo C | bash install_fusion.sh
+RUN echo C | bash install_fusion.sh -hnf
 
 # Copy tutorial script
 RUN cp /opt/myapp/earthenterprise/earth_enterprise/tutorial/FusionTutorial/download_tutorial.sh /download_tutorial.sh
@@ -36,7 +36,7 @@ ENV NOTVISIBLE "in users profile"
 RUN echo "export VISIBLE=now" >> /etc/profile
 
 
-FROM alpine:3.12
+FROM scratch
 
 COPY --from=base / /
 

@@ -15,7 +15,7 @@ trap 'cleanup' SIGTERM
 
 if [ ! -f /var/opt/google/pgsql/data/postgresql.conf ]; then
 	chown -R gepguser:gegroup /var/opt/google/pgsql/data
-	printf 'C\nn' | /opt/myapp/earthenterprise/earth_enterprise/src/installer/install_server.sh
+	printf 'C\nn' | /opt/myapp/earthenterprise/earth_enterprise/src/installer/install_server.sh -hnf
 fi
 
 # Configure publish root

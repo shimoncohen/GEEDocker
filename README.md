@@ -9,7 +9,7 @@ Build and run Google Earth Enterprise with docker
 To create all of the images run runChain.sh\
 The script runChain.sh accepts the following flags:
 * --tag <wanted_tag> (to specify wanted GEE tag, Default is [5.3.5-1610.20](https://github.com/google/earthenterprise/releases/tag/5.3.5-1610.20))
-* --test (for running the GEE tests to check that the build was successful)
+* --test (runs the GEE unit tests in the `test` stage of geeBuild/Dockerfile; CI runs them before publishing the base)
 * --tutorial (for creating an additional fusion image with the tutorial files)
 * --admin_password <wanted_password> (for changing default server password)
 

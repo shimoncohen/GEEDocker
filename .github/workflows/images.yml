@@ -29,10 +29,14 @@ jobs:
         include:
           - name: geeserver
             paths: server
+            push: true
           - name: geefusion
             paths: fusion ':!fusion/ssh'
+            push: true
+          # Not pushed: the image enables root SSH login; publishing it is decided in #10.
           - name: geefusion-ssh
             paths: fusion/ssh
+            push: false
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -128,7 +132,7 @@ jobs:
           docker rm -f smoke
 
       - name: Push
-        if: steps.changes.outputs.build == 'true' && github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+        if: steps.changes.outputs.build == 'true' && matrix.push && github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
         env:
           NAME: ${{ matrix.name }}
           REGISTRY: ${{ steps.img.outputs.registry }}

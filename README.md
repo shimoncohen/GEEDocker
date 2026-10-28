@@ -15,21 +15,10 @@ The script runChain.sh accepts the following flags:
 ### Use prebuilt images:
 CI publishes images to GitHub Container Registry on every push to master:
 * `ghcr.io/shimoncohen/geebuild:<gee_tag>` (the compiled GEE base, rebuilt only when `geeBuild/` changes)
-* `ghcr.io/shimoncohen/geeserver`, `geefusion`, `fusiontutorial`, `geefusion-ssh`, tagged `master` and `sha-<commit>`
-
-Images hold no credentials; they are supplied when the container starts (see Running GEE).
-
-To skip the long GEE compile locally, build an image on top of the published base:
-```sh
-docker build --build-arg BASE_IMAGE=ghcr.io/shimoncohen/geebuild:5.3.5-1610.20 -t geeserver:v1 server
-```
-
-### Use prebuilt images:
-CI publishes images to GitHub Container Registry on every push to master:
-* `ghcr.io/shimoncohen/geebuild:<gee_tag>` (the compiled GEE base, rebuilt only when `geeBuild/` changes)
 * `ghcr.io/shimoncohen/geeserver`, `geefusion`, `fusiontutorial`, tagged `master` and `sha-<commit>`
 
-`geefusion-ssh` is built in CI but not published. The published server image has no admin password set.
+`geefusion-ssh` is built in CI but not published (#10).
+Images hold no credentials; they are supplied when the container starts (see Running GEE).
 
 To skip the long GEE compile locally, build an image on top of the published base:
 ```sh

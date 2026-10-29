@@ -5,6 +5,7 @@ GEVOL="/gevol"
 PGVOL="-v $GEVOL/data:/var/opt/google/pgsql/data"
 ENTERYPOINT=0
 HOST=""
+ADMIN_PASSWORD_FILE=""
 
 # Loop through arguments and process them
 # Taken from: https://pretzelhands.com/posts/command-line-flags
@@ -34,12 +35,26 @@ for arg in "$@"; do
         shift # Remove
         shift
         ;;
+    --admin_password_file=*)
+        ADMIN_PASSWORD_FILE="${arg#*=}"
+        shift
+        ;;
+    --admin_password_file)
+        ADMIN_PASSWORD_FILE="$2"
+        shift
+        shift
+        ;;
     esac
 done
 
 if [ ! -d $GEVOL ]; then
     echo "No such path $GEVOL" && exit 1
 fi
+
+if [ ! -s "$ADMIN_PASSWORD_FILE" ]; then
+    echo "--admin_password_file <path> is required: a file holding the server admin password" && exit 1
+fi
+ADMIN_PASSWORD_FILE=$(realpath "$ADMIN_PASSWORD_FILE")
 
 ATTACH_DOCKER_FLAG="-d"
 ATTACH_HOST_FLAG=""
@@ -49,6 +64,7 @@ docker_command_str="docker run \
     %s \
     -v $GEVOL/server:/gevol/server \
     -v /tmp/.X11-unix:/tmp/.X11-unix \
+    -v $ADMIN_PASSWORD_FILE:/run/secrets/gee_admin_password:ro \
     %s \
     --name servercontainer \
     -p 8081:80 \

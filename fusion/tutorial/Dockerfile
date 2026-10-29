@@ -1,6 +1,7 @@
-FROM geefusion:v1 AS base
+ARG BASE_IMAGE=geefusion:v1
+FROM ${BASE_IMAGE} AS base
 
-FROM alpine:3.12
+FROM scratch
 
 COPY --from=base / /
 

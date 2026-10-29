@@ -1,4 +1,4 @@
-FROM ubuntu:16.04 AS base
+FROM ubuntu:16.04 AS build
 
 ARG GEE_path=earthenterprise
 ARG TAG="5.3.5-1610.20"
@@ -31,7 +31,8 @@ RUN apt-get update &&\
     python-setuptools python2.7 python2.7-dev python-lxml python-git \
     shunit2 swig xorg-dev zlib1g-dev
 
-RUN pip install --upgrade pip
+# pip 21+ dropped Python 2 support
+RUN pip install --upgrade "pip<21"
 RUN pip install setuptools gcg
 
 # Create symbolic links to binaries needed in /usr/lib
@@ -52,7 +53,7 @@ WORKDIR /opt/myapp/earthenterprise
 # RUN git pull
 
 # Download git-lfs
-RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash && sudo apt-get -y install --no-install-recommends git-lfs
+RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash && apt-get -y install --no-install-recommends git-lfs
 
 # Download additional files using git-lfs
 RUN git lfs pull
@@ -60,10 +61,25 @@ RUN git lfs pull
 WORKDIR /opt/myapp/earthenterprise/earth_enterprise
 
 # Build GEE
-RUN scons -j3 release=1 build
+RUN scons -j"$(nproc)" release=1 build
 
 # Build the install package
-RUN scons -j3 release=1 stage_install
+RUN scons -j"$(nproc)" release=1 stage_install
+
+# Tests need the build tree, which the base stage deletes.
+FROM build AS test
+
+# Root bypasses file permissions, which fails permission tests such as KhxmlTest.CreateDocumentNoPerms.
+RUN useradd -m geetest && \
+    chown -R geetest:geetest /opt/myapp/earthenterprise/earth_enterprise/src/NATIVE-REL-x86_64
+
+USER geetest
+
+WORKDIR /opt/myapp/earthenterprise/earth_enterprise/src/NATIVE-REL-x86_64/bin/tests
+
+RUN ./RunAllTests.pl
+
+FROM build AS base
 
 RUN mv /opt/myapp/earthenterprise/earth_enterprise/src/version.txt /version.txt && \
     mv /opt/myapp/earthenterprise/earth_enterprise/src/installer /installer && \

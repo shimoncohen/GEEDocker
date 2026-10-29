@@ -49,7 +49,7 @@ if [ ! -d $TUTORIAL_SOURCE_VOLUME ]; then
 fi
 
 if [ $ENTERYPOINT -eq 1 ]; then
-    docker run --rm -it --entrypoint /bin/bash --net host --env="DISPLAY" --privileged -v $GEVOL/fusion:/gevol/fusion -v $TUTORIAL_SOURCE_VOLUME:/opt/google/share/tutorials/fusion --name fusioncontainer fusiontutorial:v1
+    docker run --rm -it --entrypoint /bin/bash --env="DISPLAY" -v $GEVOL/fusion:/gevol/fusion -v $TUTORIAL_SOURCE_VOLUME:/opt/google/share/tutorials/fusion -v /tmp/.X11-unix:/tmp/.X11-unix:ro --name fusioncontainer fusiontutorial:v1
 else
-    docker run --rm -d --net host --env="DISPLAY" --privileged -v $GEVOL/fusion:/gevol/fusion -v $TUTORIAL_SOURCE_VOLUME:/opt/google/share/tutorials/fusion --name fusioncontainer fusiontutorial:v1 &
+    docker run --rm -d --env="DISPLAY" -v $GEVOL/fusion:/gevol/fusion -v $TUTORIAL_SOURCE_VOLUME:/opt/google/share/tutorials/fusion -v /tmp/.X11-unix:/tmp/.X11-unix:ro --name fusioncontainer fusiontutorial:v1 &
 fi

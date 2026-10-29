@@ -33,7 +33,7 @@ if [ ! -d $GEVOL ]; then
 fi
 
 if [ $ENTERYPOINT -eq 1 ]; then
-    docker run --rm -it --entrypoint /bin/bash --net host --env="DISPLAY" --privileged -v $GEVOL/fusion:/gevol/fusion --name fusioncontainer geefusion:v1
+    docker run --rm -it --entrypoint /bin/bash --env="DISPLAY" -v $GEVOL/fusion:/gevol/fusion -v /tmp/.X11-unix:/tmp/.X11-unix:ro --name fusioncontainer geefusion:v1
 else
-    docker run --rm --net host --env="DISPLAY" --privileged -v $GEVOL/fusion:/gevol/fusion --name fusioncontainer geefusion:v1 &
+    docker run --rm --env="DISPLAY" -v $GEVOL/fusion:/gevol/fusion -v /tmp/.X11-unix:/tmp/.X11-unix:ro --name fusioncontainer geefusion:v1 &
 fi

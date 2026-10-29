@@ -1,3 +1,4 @@
 #!/bin/bash
 
-docker build --rm -t geetest:v1 -f Dockerfile .
+# Extra arguments go to docker build, e.g. --build-arg TAG=<wanted_tag>
+docker build --rm --target test -t geetest:v1 "$@" ../geeBuild

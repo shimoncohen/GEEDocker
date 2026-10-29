@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ### Stop running containers ###
 
 bash removeContainer.sh servercontainer

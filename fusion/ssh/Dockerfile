@@ -1,7 +1,5 @@
-FROM geebuild:v1 AS base
-
-# Build arguments
-ARG ROOT_PASSWORD
+ARG BASE_IMAGE=geebuild:v1
+FROM ${BASE_IMAGE} AS base
 
 # Download xserver package
 RUN apt-get update &&\
@@ -13,7 +11,7 @@ COPY entrypoint.sh /entrypoint.sh
 WORKDIR /opt/myapp/earthenterprise/earth_enterprise/src/installer
 
 # Install fusion
-RUN echo C | bash install_fusion.sh
+RUN echo C | bash install_fusion.sh -hnf
 
 # Copy tutorial script
 RUN cp /opt/myapp/earthenterprise/earth_enterprise/tutorial/FusionTutorial/download_tutorial.sh /download_tutorial.sh
@@ -25,8 +23,7 @@ RUN rm -frd /opt/myapp/earthenterprise &&\
 
 # From: https://docs.docker.com/engine/examples/running_ssh_service/
 RUN mkdir /var/run/sshd
-RUN echo "root:$ROOT_PASSWORD" | chpasswd
-RUN sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
 
 # SSH login fix. Otherwise user is kicked off after login
 RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
@@ -35,7 +32,7 @@ ENV NOTVISIBLE "in users profile"
 RUN echo "export VISIBLE=now" >> /etc/profile
 
 
-FROM alpine:3.12
+FROM scratch
 
 COPY --from=base / /
 

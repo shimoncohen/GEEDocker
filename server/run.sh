@@ -67,7 +67,7 @@ docker_command_str="docker run \
     -v $ADMIN_PASSWORD_FILE:/run/secrets/gee_admin_password:ro \
     %s \
     --name servercontainer \
-    -p 8081:80 \
+    -p 127.0.0.1:8081:80 \
     geeserver-slim:v1"
 
 docker_command=$(printf "$docker_command_str" "$ATTACH_DOCKER_FLAG" "$ATTACH_HOST_FLAG" "")

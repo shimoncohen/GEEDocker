@@ -63,7 +63,6 @@ docker_command_str="docker run \
     %s \
     %s \
     -v $GEVOL/server:/gevol/server \
-    -v /tmp/.X11-unix:/tmp/.X11-unix \
     -v $ADMIN_PASSWORD_FILE:/run/secrets/gee_admin_password:ro \
     %s \
     --name servercontainer \

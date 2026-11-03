@@ -1,7 +1,5 @@
 #!/bin/bash
 
-xhost +local:root
-
 # Default values of arguments
 GEVOL="/gevol"
 TUTORIAL_SOURCE_VOLUME="/opt/google/share/tutorials/fusion"
@@ -48,8 +46,27 @@ if [ ! -d $TUTORIAL_SOURCE_VOLUME ]; then
     echo "No such path $TUTORIAL_SOURCE_VOLUME" && exit 1
 fi
 
+# Grant X access to root only, and revoke it only if this script added it
+XHOST_ADDED=0
+if ! xhost | grep -qx 'SI:localuser:root'; then
+    xhost +si:localuser:root && XHOST_ADDED=1
+fi
+xhost_revoke() {
+    if [ $XHOST_ADDED -eq 1 ]; then
+        xhost -si:localuser:root
+    fi
+}
+
 if [ $ENTERYPOINT -eq 1 ]; then
+    trap xhost_revoke EXIT
     docker run --rm -it --entrypoint /bin/bash --net host --env="DISPLAY" --privileged -v $GEVOL/fusion:/gevol/fusion -v $TUTORIAL_SOURCE_VOLUME:/opt/google/share/tutorials/fusion --name fusioncontainer fusiontutorial:v1
 else
-    docker run --rm -d --net host --env="DISPLAY" --privileged -v $GEVOL/fusion:/gevol/fusion -v $TUTORIAL_SOURCE_VOLUME:/opt/google/share/tutorials/fusion --name fusioncontainer fusiontutorial:v1 &
+    # The watcher outlives the script; ignore HUP so closing the terminal does not skip the revoke
+    (
+        trap '' HUP
+        if cid=$(docker run --rm -d --net host --env="DISPLAY" --privileged -v $GEVOL/fusion:/gevol/fusion -v $TUTORIAL_SOURCE_VOLUME:/opt/google/share/tutorials/fusion --name fusioncontainer fusiontutorial:v1); then
+            docker wait "$cid" >/dev/null
+        fi
+        xhost_revoke
+    ) &
 fi

@@ -1,4 +1,6 @@
-FROM ubuntu:16.04 AS build
+# Single OS pin site; the 16.04 tag is frozen, so the digest only changes on a deliberate bump.
+FROM ubuntu:16.04@sha256:1f1a2d56de1d604801a9671f301190704c25d604a416f59e03c04f5c6ffee0d6 AS os
+FROM os AS build
 
 ARG GEE_path=earthenterprise
 ARG TAG="5.3.5-1610.20"
@@ -91,6 +93,6 @@ RUN mkdir /opt/myapp/earthenterprise/earth_enterprise/src && \
     mv /installer /opt/myapp/earthenterprise/earth_enterprise/src/installer && \
     mv /FusionTutorial /opt/myapp/earthenterprise/earth_enterprise/tutorial/FusionTutorial
 
-FROM ubuntu:16.04
+FROM os
 
 COPY --from=base / /

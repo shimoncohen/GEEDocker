@@ -9,6 +9,11 @@ on:
     types: [completed]
     branches: [master]
   workflow_dispatch:
+    inputs:
+      base_image:
+        description: Replaces the published geebuild:<TAG> as the base; the run builds and smoke-tests only, nothing is pushed
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -72,10 +77,13 @@ jobs:
       - name: Resolve image names
         if: steps.changes.outputs.build == 'true'
         id: img
+        env:
+          BASE_IMAGE_INPUT: ${{ inputs.base_image }}
         run: |
           registry="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}"
           echo "registry=$registry" >> "$GITHUB_OUTPUT"
-          echo "base=$registry/geebuild:$(grep -oP '^ARG TAG="\K[^"]+' geeBuild/Dockerfile)" >> "$GITHUB_OUTPUT"
+          base="${BASE_IMAGE_INPUT:-$registry/geebuild:$(grep -oP '^ARG TAG="\K[^"]+' geeBuild/Dockerfile)}"
+          echo "base=$base" >> "$GITHUB_OUTPUT"
 
       - uses: docker/login-action@v4.7.0
         if: steps.changes.outputs.build == 'true'
@@ -132,7 +140,7 @@ jobs:
           docker rm -f smoke
 
       - name: Push
-        if: steps.changes.outputs.build == 'true' && matrix.push && github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+        if: steps.changes.outputs.build == 'true' && matrix.push && github.event_name != 'pull_request' && github.ref == 'refs/heads/master' && inputs.base_image == ''
         env:
           NAME: ${{ matrix.name }}
           REGISTRY: ${{ steps.img.outputs.registry }}

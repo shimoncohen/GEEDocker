@@ -39,9 +39,14 @@ jobs:
         id: tag
         env:
           INPUT_TAG: ${{ inputs.gee_tag }}
+          EVENT: ${{ github.event_name }}
         run: |
           tag="${INPUT_TAG:-$(grep -oP '^ARG TAG="\K[^"]+' geeBuild/Dockerfile)}"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          # Only a push to master (the only push trigger) writes the production tag and cache; manual dispatches write candidate ones.
+          suffix=""
+          if [ "$EVENT" != push ] && [ "$EVENT" != pull_request ]; then suffix="-candidate"; fi
+          echo "suffix=$suffix" >> "$GITHUB_OUTPUT"
           echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/geebuild" >> "$GITHUB_OUTPUT"
 
       - uses: docker/setup-buildx-action@v4.4.1
@@ -58,14 +63,14 @@ jobs:
           context: geeBuild
           target: test
           build-args: TAG=${{ steps.tag.outputs.tag }}
-          cache-from: type=registry,ref=${{ steps.tag.outputs.image }}:buildcache-${{ steps.tag.outputs.tag }}
+          cache-from: type=registry,ref=${{ steps.tag.outputs.image }}:buildcache-${{ steps.tag.outputs.tag }}${{ steps.tag.outputs.suffix }}
 
       - uses: docker/build-push-action@v7.4.0
         with:
           context: geeBuild
           build-args: TAG=${{ steps.tag.outputs.tag }}
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.tag.outputs.image }}:${{ steps.tag.outputs.tag }}
+          tags: ${{ steps.tag.outputs.image }}:${{ steps.tag.outputs.tag }}${{ steps.tag.outputs.suffix }}
           # Registry cache, not gha: the compile layers can exceed the 10 GB gha cache limit.
-          cache-from: type=registry,ref=${{ steps.tag.outputs.image }}:buildcache-${{ steps.tag.outputs.tag }}
-          cache-to: ${{ github.event_name != 'pull_request' && format('type=registry,ref={0}:buildcache-{1},mode=max', steps.tag.outputs.image, steps.tag.outputs.tag) || '' }}
+          cache-from: type=registry,ref=${{ steps.tag.outputs.image }}:buildcache-${{ steps.tag.outputs.tag }}${{ steps.tag.outputs.suffix }}
+          cache-to: ${{ github.event_name != 'pull_request' && format('type=registry,ref={0}:buildcache-{1}{2},mode=max', steps.tag.outputs.image, steps.tag.outputs.tag, steps.tag.outputs.suffix) || '' }}

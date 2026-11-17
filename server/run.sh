@@ -2,7 +2,6 @@
 
 # Default values of arguments
 GEVOL="/gevol"
-PGVOL="-v $GEVOL/data:/var/opt/google/pgsql/data"
 ENTERYPOINT=0
 HOST=""
 ADMIN_PASSWORD_FILE=""
@@ -47,6 +46,8 @@ for arg in "$@"; do
     esac
 done
 
+PGVOL="-v $GEVOL/data:/var/opt/google/pgsql/data"
+
 if [ ! -d $GEVOL ]; then
     echo "No such path $GEVOL" && exit 1
 fi
@@ -73,9 +74,9 @@ docker_command_str="docker run \
 docker_command=$(printf "$docker_command_str" "$ATTACH_DOCKER_FLAG" "$ATTACH_HOST_FLAG" "")
 
 # If pgdata isn't present, then copy the initial files
-if [ ! -d "/gevol/data" ]; then
+if [ ! -d "$GEVOL/data" ]; then
     $docker_command
-    sudo docker cp servercontainer:/var/opt/google/pgsql/data /gevol/data
+    sudo docker cp servercontainer:/var/opt/google/pgsql/data "$GEVOL/data"
     docker rm -f servercontainer
 fi
 

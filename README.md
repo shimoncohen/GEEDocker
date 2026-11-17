@@ -72,7 +72,8 @@ Start server:
 cd server
 bash run.sh --admin_password_file <path>
 ```
-The file holds the admin password for user `geapacheuser` (the `/admin/` pages). The server refuses to start without it.
+The file holds the admin password for user `geapacheuser` (the `/admin/` pages). The server refuses to start without it.\
+The admin UI is published on `127.0.0.1:8081` only (`http://127.0.0.1:8081/admin/`), not on other interfaces.
 **Refer to https://www.opengee.org/geedocs/5.2.2/answer/3470759.html for information about server password**\
 ** make sure the server is running before starting fusion\
 \

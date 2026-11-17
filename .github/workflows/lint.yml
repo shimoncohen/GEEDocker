@@ -28,5 +28,8 @@ jobs:
         run: |
           git ls-files -z '*.sh' | xargs -0 docker run --rm -v "$PWD:/mnt" -w /mnt koalaman/shellcheck:v0.11.0 -S error
 
+      - name: server bind test
+        run: bash test/test-server-bind.sh
+
       - name: actionlint
         run: docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.12 -no-color

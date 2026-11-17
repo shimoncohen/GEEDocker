@@ -25,6 +25,19 @@ To skip the long GEE compile locally, build an image on top of the published bas
 docker build --build-arg BASE_IMAGE=ghcr.io/shimoncohen/geebuild:5.3.5-1610.20 -t geeserver:v1 server
 ```
 
+### Base image:
+`geeBuild` builds on `ubuntu:16.04`, pinned by digest in the `os` stage of `geeBuild/Dockerfile`. 16.04 is end-of-life and upstream GEE 5.3.5 documents no newer build OS; the migration is tracked in #14.
+
+To refresh the digest after a deliberate bump, run:
+```sh
+docker buildx imagetools inspect ubuntu:<tag> --format '{{.Manifest.Digest}}'
+```
+(Without `--format`, the output includes a `Digest:` line.)
+
+Only a push to master publishes `geebuild:<gee_tag>`. Every manual run of the `geebuild` workflow, on master or any branch, publishes `geebuild:<gee_tag>-candidate` and uses a separate `-candidate` layer cache. The candidate tag and cache are shared by all branches, so run one candidate build at a time.
+
+To check downstream images against a candidate, dispatch the `images` workflow with `base_image=ghcr.io/shimoncohen/geebuild:<gee_tag>-candidate`. That run builds and smoke-tests but pushes nothing.
+
 ### Create images one by one:
 If you wish to create each image independantly you may do so with the given scripts as following:
 

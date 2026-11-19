@@ -3,7 +3,7 @@ FROM ${BASE_IMAGE} AS base
 
 # Download xserver package
 RUN apt-get update &&\
-	apt-get -y install --no-install-recommends openssh-server
+	apt-get -y install --no-install-recommends openssh-server=1:7.2p2-4ubuntu2.10
 
 # Copy entrypoint script
 COPY entrypoint.sh /entrypoint.sh

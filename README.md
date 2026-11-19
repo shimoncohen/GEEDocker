@@ -8,7 +8,7 @@ Build and run Google Earth Enterprise with docker
 ### Create all images with runChain script:
 To create all of the images run runChain.sh\
 The script runChain.sh accepts the following flags:
-* --tag <wanted_tag> (to specify wanted GEE tag, Default is [5.3.5-1610.20](https://github.com/google/earthenterprise/releases/tag/5.3.5-1610.20))
+* --tag <wanted_tag> (to specify wanted GEE tag, Default is [5.3.5-1610.20](https://github.com/google/earthenterprise/releases/tag/5.3.5-1610.20), built from a pinned commit; a custom tag is checked out as is and stays mutable)
 * --test (runs the GEE unit tests in the `test` stage of geeBuild/Dockerfile; CI runs them before publishing the base)
 * --tutorial (for creating an additional fusion image with the tutorial files)
 
@@ -116,3 +116,12 @@ Remove containers by running the script removeContainer.sh as such:
 ```sh
 bash removeContainer.sh <container_name>
 ```
+
+# Bumping the pins
+
+* Default tag: `ARG TAG` in `geeBuild/Dockerfile` (change it together with the GEE commit below)
+* GEE commit: `geeBuild/gee-commits.txt`, from `git ls-remote https://github.com/google/earthenterprise.git "refs/tags/<tag>^{}"`
+* Python versions: `geeBuild/requirements-pip.txt` and `geeBuild/requirements.txt`, from the versions pip installs in a container from the new base
+* PyPI sha256: the same two files, from `https://pypi.org/pypi/<name>/<version>/json` (`urls[].digests.sha256`)
+* apt versions: the five Dockerfiles and the git-lfs `RUN`, from `dpkg-query -W -f='${Package}=${Version}\n'` inside a container from the new base
+* Base image digest: `ARG UBUNTU_IMAGE` (the index digest of the tag)

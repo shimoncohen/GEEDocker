@@ -53,7 +53,9 @@ WORKDIR /opt/myapp/earthenterprise
 # RUN git pull
 
 # Download git-lfs
-RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash && apt-get -y install --no-install-recommends git-lfs
+ARG GIT_LFS_VERSION=3.8.1
+ARG GIT_LFS_SHA256=e72cf723a4a660438862282e8aecf3885fc8123e88bfcad534cf6b941a354b75
+RUN curl -fsSL -o /tmp/git-lfs.tar.gz "https://github.com/git-lfs/git-lfs/releases/download/v${GIT_LFS_VERSION}/git-lfs-linux-amd64-v${GIT_LFS_VERSION}.tar.gz" && echo "${GIT_LFS_SHA256}  /tmp/git-lfs.tar.gz" > /tmp/git-lfs.sha256 && sha256sum -c /tmp/git-lfs.sha256 && tar -xzf /tmp/git-lfs.tar.gz -C /tmp && install -m 0755 /tmp/git-lfs-${GIT_LFS_VERSION}/git-lfs /usr/local/bin/git-lfs && git lfs install --system --skip-repo && rm -rf /tmp/git-lfs.tar.gz /tmp/git-lfs.sha256 /tmp/git-lfs-${GIT_LFS_VERSION}
 
 # Download additional files using git-lfs
 RUN git lfs pull

@@ -3,7 +3,7 @@ FROM ${BASE_IMAGE} AS base
 
 # Download xserver package
 RUN apt-get update &&\
-	apt-get -y install --no-install-recommends x11-xserver-utils
+	apt-get -y install --no-install-recommends x11-xserver-utils=7.7+7
 
 # Copy entrypoint script
 COPY entrypoint.sh /entrypoint.sh

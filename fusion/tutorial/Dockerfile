@@ -18,7 +18,7 @@ RUN rm /entrypoint.sh
 COPY entrypoint.sh /entrypoint.sh
 
 RUN apt-get update &&\
-	apt-get -y install --no-install-recommends wget
+	apt-get -y install --no-install-recommends wget=1.17.1-1ubuntu1.5
 
 # Set entrypoint
 ENTRYPOINT ["bash", "/entrypoint.sh", "tutorial"]

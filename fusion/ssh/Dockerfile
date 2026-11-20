@@ -24,6 +24,8 @@ RUN rm -frd /opt/myapp/earthenterprise &&\
 # From: https://docs.docker.com/engine/examples/running_ssh_service/
 RUN mkdir /var/run/sshd
 RUN echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
+# Package-time host keys would be shared by every container; entrypoint.sh generates them at start
+RUN rm -f /etc/ssh/ssh_host_*
 
 # SSH login fix. Otherwise user is kicked off after login
 RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd

@@ -46,7 +46,7 @@ fi
 KEYS_MOUNT="-v $(realpath "$AUTHORIZED_KEYS"):/run/secrets/authorized_keys:ro"
 
 if [ $ENTERYPOINT -eq 1 ]; then
-    docker run --rm -it --entrypoint /bin/bash --privileged -p 127.0.0.1:30022:22 $KEYS_MOUNT -v $GEVOL/fusion:/gevol/fusion --name fusioncontainer geefusion-ssh:v1
+    docker run --rm -it --entrypoint /bin/bash -p 127.0.0.1:30022:22 $KEYS_MOUNT -v $GEVOL/fusion:/gevol/fusion --name fusioncontainer geefusion-ssh:v1
 else
-    docker run --rm --privileged -p 127.0.0.1:30022:22 $KEYS_MOUNT -v $GEVOL/fusion:/gevol/fusion --name fusioncontainer geefusion-ssh:v1 &
+    docker run --rm -p 127.0.0.1:30022:22 $KEYS_MOUNT -v $GEVOL/fusion:/gevol/fusion --name fusioncontainer geefusion-ssh:v1 &
 fi

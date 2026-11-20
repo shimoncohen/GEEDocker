@@ -33,10 +33,9 @@ jobs:
           - name: geefusion
             paths: fusion ':!fusion/ssh'
             push: true
-          # Not pushed: the image enables root SSH login; publishing it is decided in #10.
           - name: geefusion-ssh
             paths: fusion/ssh
-            push: false
+            push: true
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -120,11 +119,31 @@ jobs:
             [ "$(code -u geapacheuser:geeadmin)" = 401 ] || { echo "::error::upstream default password still accepted"; exit 1; }
             [ "$(code -u "geapacheuser:$(cat "$secrets/gee_admin_password")")" = 200 ] || { echo "::error::configured admin password rejected"; docker logs smoke; exit 1; }
           else
+            rc=0; docker run --rm --entrypoint bash "$NAME" -c 'compgen -G "/etc/ssh/ssh_host_*"' >/dev/null || rc=$?
+            [ "$rc" = 1 ] || { echo "::error::image ships SSH host keys or the check failed (compgen exit $rc, expected 1)"; exit 1; }
             ssh-keygen -q -t ed25519 -N '' -f "$secrets/key"
-            docker run -d --name smoke -p 127.0.0.1:30022:22 -v "$secrets/key.pub:/run/secrets/authorized_keys:ro" "$NAME"
+            mkdir -p "$RUNNER_TEMP/fusion"
+            docker run -d --name smoke -p 127.0.0.1:30022:22 -v "$secrets/key.pub:/run/secrets/authorized_keys:ro" -v "$RUNNER_TEMP/fusion:/gevol/fusion" "$NAME"
             opts=(-o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=5 -p 30022)
+            echo "::group::/etc/init.d/gefusion"
+            docker run --rm --entrypoint cat "$NAME" /etc/init.d/gefusion || echo "could not read /etc/init.d/gefusion (exit $?)"
+            echo "::endgroup::"
+            # Any live process that is not one of this image's own infrastructure processes.
+            gefusion_up() { docker top smoke -eo pid,args | awk 'NR>1 {$1=""; sub(/^ +/,""); print}' | grep -Ev '^(bash /entrypoint\.sh|/usr/sbin/sshd|sshd:|sleep )|<defunct>' | grep -q .; }
+            gefusion_diag() {
+              docker top smoke -eo pid,user,args || echo "docker top failed (exit $?)"
+              local rc=0 out
+              out=$(ssh "${opts[@]}" -i "$secrets/key" root@127.0.0.1 /etc/init.d/gefusion status 2>&1) || rc=$?
+              echo "gefusion status exit $rc:"; echo "$out"
+            }
             for _ in $(seq 30); do ssh-keyscan -p 30022 127.0.0.1 >/dev/null 2>&1 && break; sleep 2; done
             ssh "${opts[@]}" -i "$secrets/key" root@127.0.0.1 true || { echo "::error::key login failed"; docker logs smoke; exit 1; }
+            up=false
+            for _ in $(seq 12); do gefusion_up && { up=true; break; }; sleep 5; done
+            [ "$up" = true ] || { echo "::error::gefusion not running"; docker logs smoke; gefusion_diag; exit 1; }
+            sleep 5
+            gefusion_up || { echo "::error::gefusion exited after startup"; docker logs smoke; gefusion_diag; exit 1; }
+            gefusion_diag
             # The "none" method makes sshd list every login method it would accept.
             offered=$(ssh "${opts[@]}" -o PreferredAuthentications=none root@127.0.0.1 true 2>&1 || true)
             [[ "$offered" == *"Permission denied (publickey)."* ]] || { echo "::error::expected key-only login, got: $offered"; exit 1; }

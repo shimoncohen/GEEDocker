@@ -38,4 +38,5 @@ fi
 /etc/init.d/gefusion start
 
 # Activate SSH
+ssh-keygen -A
 /usr/sbin/sshd -D
